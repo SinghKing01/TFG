@@ -1,0 +1,33 @@
+.footer-div {
+    background-color: rgb(244, 244, 244);
+}
+
+body {
+    background-color: rgba(177, 177, 177, 0.747);
+}
+
+.main-container {
+    /* border: 2px solid red; */
+    min-height: 85vh;
+    display: table;
+}
+
+.second-container {
+    /* border: 2px solid green; */
+    min-height: 100vh;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.form-container {
+    /* border: 2px solid blue; */
+    justify-content: center;
+    display: flex;
+}
+
+.form-div {
+    min-width: 30%;
+    box-shadow: 0 0 10px rgba(12, 112, 213, 0.5);
+    border-radius: 10px;
+    padding: 10px;
+}
