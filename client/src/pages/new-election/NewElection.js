@@ -11,16 +11,8 @@ import getWeb3 from '../../getWeb3'
 import Elections from '../../contracts/Elections.json'
 
 const NewElection = () => {
-
     useEffect(() => {
         async function loadData() {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                window.location.reload();
-            });
-            window.ethereum.on('chainChanged', (network) => {
-                window.location.reload();
-            });
-
             try {
                 // Get network provider and web3 instance.
                 setLoading(true)
@@ -36,6 +28,13 @@ const NewElection = () => {
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
+
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    window.location.reload();
+                });
+                window.ethereum.on('chainChanged', (network) => {
+                    window.location.reload();
+                });
             } catch (error) {
                 setLoading(false)
             }
@@ -58,21 +57,44 @@ const NewElection = () => {
     const [roomCreated, setRoomCreated] = useState(false)
     const [roomNumber, setRoomNumber] = useState(-1)
 
+    const [validDuration, setValidDuration] = useState(true)
     const handleFormSubmit = async (e) => {
         e.preventDefault()
 
-        let title, numCandidates, password, confirmation = null
+        let title, numCandidates, password, confirmation, magnitude, units = null
         let valid_t = true
         let valid_n = true
         let valid_p = true
         let valid_p_confirmation = true
+        let valid_duration = true
 
         title = document.getElementById("electionTitle").value
         numCandidates = document.getElementById("candidatesNumber").value
         password = document.getElementById("formBasicPassword").value
         confirmation = document.getElementById("passwordConfirmation").value
+        magnitude = document.querySelectorAll("[control_id=magnitude]")[0].value
+        units = document.querySelectorAll("[control_id=units]")[0].value
 
-        if (title == "") {
+        let duration = null;
+
+        if (magnitude === "null" || units <= 0) {
+            setValidDuration(false)
+            valid_duration = false
+        } else {
+            setValidDuration(true)
+            valid_duration = true
+
+            if (magnitude === "minutes") {
+                duration = units * 60;
+            } else if (magnitude === "hours") {
+                duration = units * 60 * 60;
+            } else if (magnitude === "days") {
+                duration = units * 60 * 60 * 24;
+            }
+
+        }
+
+        if (title === "") {
             setValidTitle(false)
             valid_t = false
         } else {
@@ -88,7 +110,7 @@ const NewElection = () => {
             valid_n = true
         }
 
-        if (password == "") {
+        if (password === "") {
             setValidPassword(false)
             valid_p = false
         } else {
@@ -96,7 +118,7 @@ const NewElection = () => {
             valid_p = true
         }
 
-        if (password != confirmation) {
+        if (password !== confirmation) {
             setValidConfirmation(false)
             valid_p_confirmation = false
         } else {
@@ -104,7 +126,7 @@ const NewElection = () => {
             valid_p_confirmation = true
         }
 
-        if (valid_t && valid_n && valid_p && valid_p_confirmation) {
+        if (valid_t && valid_n && valid_p && valid_p_confirmation && valid_duration) {
             try {
                 //create election web3
                 let instance = new web3.eth.Contract(
@@ -114,7 +136,7 @@ const NewElection = () => {
 
                 // adding new election
                 setLoading(true)
-                await instance.methods.newElection(title, numCandidates).send({ from: account });
+                await instance.methods.newElection(title, numCandidates, duration, password).send({ from: account });
                 var totalElections = await instance.methods.electionCount().call()
                 setRoomCreated(true)
                 setRoomNumber(totalElections - 1)
@@ -155,6 +177,26 @@ const NewElection = () => {
                                                 !validNumCandidates ? (
                                                     <Form.Text className="text-muted">
                                                         Please enter a valid number of candidates.
+                                                    </Form.Text>
+                                                ) : (null)
+                                            }
+                                        </Form.Group>
+
+                                        <Form.Group className="mb-3" controlId="duration">
+                                            <Form.Label>Duration of election</Form.Label>
+                                            <div className='justify-content-between d-flex'>
+                                                <Form.Control style={{ height: "38px" }} size='md' type="number" min="0" placeholder="Enter units" control_id="units" />
+                                                <Form.Select aria-label="Default select example" control_id="magnitude">
+                                                    <option value="null">Select Option</option>
+                                                    <option value="minutes">Minutes</option>
+                                                    <option value="hours">Hours</option>
+                                                    <option value="days">Days</option>
+                                                </Form.Select>
+                                            </div>
+                                            {
+                                                !validDuration ? (
+                                                    <Form.Text className="text-muted">
+                                                        Please enter a valid duration for your election.
                                                     </Form.Text>
                                                 ) : (null)
                                             }

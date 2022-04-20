@@ -1,0 +1,36 @@
+.footer-start {
+    justify-content: space-between;
+    display: flex;
+    margin-left: 15%;
+    margin-right: 15%;
+    padding-top: 9vh;
+}
+
+.footer-end {
+    /* background-color: rgba(209, 230, 252, 0.5); */
+    justify-content: center;
+    display: flex;
+    height: 100%;
+    margin-bottom: 0px;
+    background-color: whitesmoke;
+    color: rgb(202, 202, 202);
+}
+
+.footer-main {
+    width: 100%;
+    display: table;
+    /* border: 2px solid red; */
+    background-color: whitesmoke;
+    color: rgb(120, 119, 119);
+}
+
+.footer-container {
+    /* border: 2px solid green; */
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.footer-logo {
+    min-height: 15vh;
+    height: 20vh;
+}

@@ -15,13 +15,6 @@ const AddCandidates = () => {
 
     useEffect(() => {
         async function loadData() {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                window.location.reload();
-            });
-            window.ethereum.on('chainChanged', (network) => {
-                window.location.reload();
-            });
-
             try {
                 // Get network provider and web3 instance.
                 setLoading(true)
@@ -37,6 +30,13 @@ const AddCandidates = () => {
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
+
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    window.location.reload();
+                });
+                window.ethereum.on('chainChanged', (network) => {
+                    window.location.reload();
+                });
             } catch (error) {
                 setLoading(false)
             }
@@ -51,6 +51,7 @@ const AddCandidates = () => {
     const [submit1, setSubmit1] = useState(false)
     const [validRoomInputs, setSubmit1Inputs] = useState(true)
     const [isOwner, setIsOwner] = useState(true)
+    const [roomPassword, setRoomPassword] = useState()
 
     const [submit2, setSubmit2] = useState(false)
     const [actualCandidates, setActualCandidates] = useState(-1);
@@ -58,7 +59,7 @@ const AddCandidates = () => {
     const [candidatesToAdd, setCandidatesToAdd] = useState("");
     const [candidatesFull, setCandidatesFull] = useState(false)
     const [validCandidatesNumber, setValidCandidatesNumber] = useState(true);
-    var [nameInputs, setNameInputs] = useState();
+    // var [nameInputs, setNameInputs] = useState();
 
     const [submit3, setSubmit3] = useState(false)
 
@@ -70,15 +71,16 @@ const AddCandidates = () => {
         roomNumber = document.querySelectorAll("[control_id=roomNumber]")[0].value
         password = document.querySelectorAll("[control_id=roomPassword]")[0].value
 
-        if (roomNumber >= 0 && password != "") {
+        setRoomPassword(password)
+
+        if (roomNumber >= 0 && password !== "") {
             try {
                 let elections = new web3.eth.Contract(
                     Elections.abi,
                     network && network.address,
                 );
-                //web3 check if password
 
-                //web3 check if is owner
+                //web3 check if valid room number
                 setLoading(true)
                 var electionAddr = await elections.methods.elections(roomNumber).call()
                 const emptyAddress = /^0x0+$/.test(electionAddr);
@@ -87,28 +89,40 @@ const AddCandidates = () => {
                     setLoading(false)
                     return
                 }
+
+                //web3 check if is owner
                 setElectionAddress(electionAddr)
                 let election = await new web3.eth.Contract(Election.abi, electionAddr);
                 var electionOwner = await election.methods.owner().call()
-
+                var passwordMatch = await election.methods.passwordMatch(password).call()
                 let _actualCandidates = await election.methods.actualCandidates().call()
                 let _totalCandidates = await election.methods.numCandidates().call()
                 setTotalCandidates(_totalCandidates)
                 setActualCandidates(_actualCandidates)
 
-                if (_totalCandidates == _actualCandidates) {
-                    setCandidatesFull(true)
-                } else {
-                    setCandidatesFull(false)
-                }
-
-                if (electionOwner == account) {
+                if (electionOwner === account) {
                     setIsOwner(true)
                     setSubmit1(true)
                 } else {
                     setIsOwner(false)
                     setSubmit1(false)
+                    setLoading(false)
+                    return
                 }
+
+                if (!passwordMatch) {
+                    setSubmit1(false)
+                    setSubmit1Inputs(false)
+                    setLoading(false)
+                    return
+                }
+
+                if (_totalCandidates === _actualCandidates) {
+                    setCandidatesFull(true)
+                } else {
+                    setCandidatesFull(false)
+                }
+
                 setLoading(false)
             } catch (error) {
                 setLoading(false)
@@ -136,16 +150,16 @@ const AddCandidates = () => {
         let names = []
         for (let index = 0; index < candidatesToAdd; index++) {
             let name = document.querySelectorAll("[myattr=candidateName" + index + "]")[0].value
-            if (name != "") names.push(name)
+            if (name !== "") names.push(name)
         }
-        nameInputs = names;
+        // nameInputs = names;
 
         // addCandidates web3
-        setLoading(true)
         let election = new web3.eth.Contract(Election.abi, electionAddress);
+        setLoading(true)
         try {
             for (let index = 0; index < names.length; index++) {
-                await election.methods.addCandidate(names[index]).send({ from: account })
+                await election.methods.addCandidate(names[index], roomPassword).send({ from: account })
             }
             setLoading(false)
         } catch (error) {
@@ -158,7 +172,7 @@ const AddCandidates = () => {
 
     return (
         <div>
-            <Navbar />
+            <Navbar account={account} />
             <Container className='main-container'>
                 <div className='second-container'>
                     <div className='form-container'>

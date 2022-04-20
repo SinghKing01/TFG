@@ -13,15 +13,22 @@ contract Elections {
         electionCount = 0;
     }
 
-    function newElection(string memory _title, uint256 _numCandidates)
-        public
-        returns (uint256)
-    {
-        elections[electionCount] = new Election(_title, _numCandidates);
+    function newElection(
+        string memory _title,
+        uint256 _numCandidates,
+        uint256 _durationInDays,
+        string memory _password
+    ) public returns (uint256) {
+        elections[electionCount] = new Election(
+            _title,
+            _numCandidates,
+            _durationInDays,
+            _password
+        );
         return electionCount++;
     }
 
-    function addCandidate(string memory _name, uint256 idElection) public {
-        elections[idElection].addCandidate(_name);
-    }
+    // function addCandidate(string memory _name, uint256 idElection, string memory _password) public {
+    //     elections[idElection].addCandidate(_name, _password);
+    // }
 }

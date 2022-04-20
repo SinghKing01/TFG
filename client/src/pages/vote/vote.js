@@ -5,6 +5,7 @@ import Footer from '../../components/footer/footer'
 import { Container, Form, Button } from 'react-bootstrap'
 import history from '../../components/history/history'
 import Spinner from 'react-bootstrap/Spinner'
+import { BiRefresh } from "react-icons/bi";
 
 import getWeb3 from '../../getWeb3'
 import Elections from '../../contracts/Elections.json'
@@ -18,13 +19,6 @@ const Vote = () => {
 
     useEffect(() => {
         async function loadData() {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                window.location.reload();
-            });
-            window.ethereum.on('chainChanged', (network) => {
-                window.location.reload();
-            });
-
             try {
                 // Get network provider and web3 instance.
                 setLoading(true)
@@ -40,6 +34,13 @@ const Vote = () => {
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
+
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    window.location.reload();
+                });
+                window.ethereum.on('chainChanged', (network) => {
+                    window.location.reload();
+                });
             } catch (error) {
                 setLoading(false)
             }
@@ -65,26 +66,35 @@ const Vote = () => {
 
     const [alreadyVoted, setAlreadyVoted] = useState(false)
 
-    const loadCandidates = () => {
-        console.log(electionCandidates)
-    }
-
-
     const [validCandidate, setValidCandidate] = useState(true)
     const [data, setData] = useState()
     const [columns, setColumns] = useState()
+
+    const [roomSaved, setRoomSaved] = useState(false)
+    const [roomNum, setRoomNum] = useState(-1)
+    const [roomPass, setRoomPass] = useState(-1)
+
     const handleRoom = async (e) => {
         e.preventDefault()
-        let roomNumber = document.getElementById('roomNumber').value;
-        let password = document.getElementById('roomPassword').value;
+        let roomNumber, password = null;
 
-        if (roomNumber >= 0 && password != "") {
+        if (!roomSaved) {
+            roomNumber = document.getElementById('roomNumber').value;
+            password = document.getElementById('roomPassword').value;
+            setRoomNum(roomNumber)
+            setRoomPass(password)
+            setRoomSaved(true)
+        } else {
+            roomNumber = roomNum
+            password = roomPass
+        }
+
+        if (roomNumber >= 0 && password !== "") {
             try {
                 let elections = new web3.eth.Contract(
                     Elections.abi,
                     network && network.address,
                 );
-                //web3 check if password
 
                 setLoading(true)
                 var electionAddr = await elections.methods.elections(roomNumber).call()
@@ -94,8 +104,18 @@ const Vote = () => {
                     setLoading(false)
                     return
                 }
+
+                //web3 check if password
                 setElectionAddress(electionAddr)
                 let election = await new web3.eth.Contract(Election.abi, electionAddr);
+                let passwordMatch = await election.methods.passwordMatch(password).call()
+                if (!passwordMatch) {
+                    setSubmit1(false)
+                    setValidRoomInputs(false)
+                    setRoomSaved(false)
+                    setLoading(false)
+                    return
+                }
 
                 let _actualCandidates = await election.methods.actualCandidates().call()
                 let _totalCandidates = await election.methods.numCandidates().call()
@@ -108,8 +128,21 @@ const Vote = () => {
                 for (let index = 0; index < _totalCandidates; index++) {
                     candidate = await election.methods.candidates(index).call()
                     candidates.push({ name: candidate.name, id: candidate.id, voteCount: candidate.voteCount })
-                    console.log(candidate)
                 }
+
+
+                let createdTime = await election.methods.createdTime().call()
+                createdTime = parseInt(createdTime, 10)
+
+                let duration = await election.methods.duration().call()
+                duration = parseInt(duration, 10)
+
+                let actualTime = new Date().getTime()
+                actualTime = (actualTime - (actualTime % 1000)) / 1000;
+
+                let remainingTime = (createdTime + duration) - actualTime
+                if (remainingTime < 0) remainingTime = 0
+                setRemainingTime(remainingTime)
 
                 const col = [{
                     dataField: 'id',
@@ -143,44 +176,75 @@ const Vote = () => {
         } else {
             setSubmit1(false)
             setValidRoomInputs(false)
+            setRoomSaved(false)
         }
 
     }
 
+    const [electionExpired, setElectionExpired] = useState(false)
+    const [remainingTime, setRemainingTime] = useState()
     const handleSelectedCandidate = async (e) => {
         e.preventDefault();
         let selectedCandidateID = document.getElementById('selectCandidate').value;
-        if (selectedCandidateID == "null") {
+        if (selectedCandidateID === "null") {
             setValidCandidate(false);
         } else {
             setValidCandidate(true);
             // vote candidate web3
+            setLoading(true)
             try {
                 let election = await new web3.eth.Contract(Election.abi, electionAddress);
-
                 let voted = false
                 voted = await election.methods.voters(account).call()
 
                 if (voted) {
                     setAlreadyVoted(true)
+                    setLoading(false)
                     return
                 }
 
-                await election.methods.vote(selectedCandidateID).send({ from: account })
+                if (remainingTime === 0) {
+                    setElectionExpired(true)
+                    setLoading(false)
+                    return
+                }
+
+                await election.methods.vote(selectedCandidateID, roomPass).send({ from: account })
                 setSubmit2(true)
             } catch (error) {
-
+                setLoading(false)
             }
-
+            setLoading(false)
         }
 
     }
 
     const [loading, setLoading] = useState(false)
 
+
+    const secondsToString = (n) => {
+        var day = parseInt(n / (24 * 3600));
+
+        n = n % (24 * 3600);
+        var hour = parseInt(n / 3600);
+
+        n %= 3600;
+        var minutes = n / 60;
+
+        n %= 60;
+        var seconds = n;
+
+        var ret = (
+            day + " " + "days " + hour + " " + "hours "
+            + minutes.toFixed() + " " + "minutes " +
+            seconds.toFixed() + " " + "seconds ");
+
+        return ret
+    }
+
     return (
         <div>
-            <Navbar />
+            <Navbar account={account} />
             <Container className='main-container'>
                 <div className='second-container'>
                     <div className='form-container'>
@@ -213,13 +277,12 @@ const Vote = () => {
                                                 </Button>
                                             </>
                                         ) : (
-                                            totalCandidates != actualCandidates ? (
+                                            totalCandidates !== actualCandidates ? (
                                                 <>
                                                     <Form.Group className='mb-3'>
                                                         <Form.Text className="text-muted">
-                                                            <p className='justify-content-center d-flex'>
+                                                            <p>
                                                                 Candidates incomplete for this election. Please provide
-                                                                <br />
                                                                 candidates names or try again later.
                                                             </p>
                                                         </Form.Text>
@@ -233,6 +296,10 @@ const Vote = () => {
                                                     <>
                                                         <Form.Group className='mb-3' controlId='selectCandidate'>
                                                             <div className='table-container'>
+                                                                <p>
+                                                                    Remaining time: {secondsToString(remainingTime)}
+                                                                    <BiRefresh className='m-2' size="2em" style={{ color: "#0d6efd", cursor: "pointer" }} onClick={handleRoom}></BiRefresh>
+                                                                </p>
                                                                 <Table columns={columns} data={data}></Table>
                                                             </div>
                                                             <Form.Label>Select a candidate</Form.Label>
@@ -260,7 +327,13 @@ const Vote = () => {
                                                                         <Form.Text className="text-muted">
                                                                             You can't participate more than once!
                                                                         </Form.Text>
-                                                                    ) : (null)
+                                                                    ) : (
+                                                                        electionExpired ? (
+                                                                            <Form.Text className="text-muted">
+                                                                                Election time is out!
+                                                                            </Form.Text>
+                                                                        ) : (null)
+                                                                    )
                                                                 )
                                                             }
                                                         </Form.Group>

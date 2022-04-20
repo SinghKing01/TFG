@@ -7,14 +7,14 @@ body {
 }
 
 .main-container {
-    /* border: 2px solid red; */
-    min-height: 85vh;
+    /* border: 2px solid yellow; */
+    min-height: 92vh;
     display: table;
 }
 
 .second-container {
     /* border: 2px solid green; */
-    min-height: 100vh;
+    /* min-height: 100vh; */
     display: table-cell;
     vertical-align: middle;
 }
@@ -26,7 +26,8 @@ body {
 }
 
 .form-div {
-    min-width: 30%;
+    /* border: 2px solid purple; */
+    min-width: 50%;
     box-shadow: 0 0 10px rgba(12, 112, 213, 0.5);
     border-radius: 10px;
     padding: 10px;
