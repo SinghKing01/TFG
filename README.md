@@ -1,5 +1,5 @@
 # Election - DAPP 
-If you want to interact with the public blockchain (Kovan Test Network) through this application, you can simply install Metamask on your web browser and add some Kovan ETHs (https://ethdrop.dev/) to your address and go ahead!
+If you want to interact with the public blockchain (Kovan Test Network) through this application, you can simply install Metamask on your web browser, add some Kovan ETHs (https://ethdrop.dev/) to your address and go ahead!
 
 Otherwise, if you want to run this application on the local Ganache Blockchain (only recommended for developers) and understand the logic of the application, then follow the instructions that are given below.
 
