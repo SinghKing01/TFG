@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from './components/navbar/navbar'
 import Footer from './components/footer/footer'
-import { Container, Form, Button } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 
 const App = () => {
 
@@ -24,10 +24,10 @@ const App = () => {
               <h4 className='justify-content-center d-flex mt-3'>Configuration links:</h4>
               <div className='justifle-content-center'>
                 <ol>
-                  <li><a target="_blank" href="https://trufflesuite.com/ganache/">Ganache installation<br></br></a></li>
-                  <li><a target="_blank" href="https://metamask.io/download/">Metamask installation<br></br></a></li>
-                  <li><a target="_blank" href="https://dapp-world.com/blogs/01/how-to-connect-ganache-with-metamask-and-deploy-smart-contracts-on-remix-without-1619847868947#:~:text=Connection%20of%20Ganache%20with%20Metamask%20%3A&text=Open%20Metamask%20and%20go%20to,ID%20for%20ganache%20is%201337.">Ganache configuration in Metamask<br></br></a></li>
-                  <li><a target="_blank" href="https://ethdrop.dev/">Get ETHs for Kovan Network</a></li>
+                  <li><a target="_blank" rel="noopener noreferrer" href="https://trufflesuite.com/ganache/">Ganache installation<br></br></a></li>
+                  <li><a target="_blank" rel="noopener noreferrer" href="https://metamask.io/download/">Metamask installation<br></br></a></li>
+                  <li><a target="_blank" rel="noopener noreferrer" href="https://dapp-world.com/blogs/01/how-to-connect-ganache-with-metamask-and-deploy-smart-contracts-on-remix-without-1619847868947#:~:text=Connection%20of%20Ganache%20with%20Metamask%20%3A&text=Open%20Metamask%20and%20go%20to,ID%20for%20ganache%20is%201337.">Ganache configuration in Metamask<br></br></a></li>
+                  <li><a target="_blank" rel="noopener noreferrer" href="https://ethdrop.dev/">Get ETHs for Kovan Network</a></li>
                 </ol>
               </div>
             </div>

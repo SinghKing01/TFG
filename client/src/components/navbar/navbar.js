@@ -1,7 +1,6 @@
 import React from 'react'
-import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { FaGithub, FaLinkedin, FaInstagram, FaReact, FaVoteYea } from 'react-icons/fa';
-import { GiVote } from 'react-icons/gi';
+import { Container, Navbar, Nav } from 'react-bootstrap';
+import { FaReact } from 'react-icons/fa';
 
 const navbar = (props) => {
     return (

@@ -240,7 +240,13 @@ const NewElection = () => {
                                 )
                             ) :
                                 (
-                                    <Spinner animation="border" />
+                                    <div>
+                                        <div className='justify-content-center d-flex'>
+                                            <Spinner animation="border" />
+                                        </div>
+                                        <br></br>
+                                        <p>Interacting with the blockchain. Please wait...</p>
+                                    </div>
                                 )
                         }
                     </div>

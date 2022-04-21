@@ -57,6 +57,7 @@ const Vote = () => {
     const [submit2, setSubmit2] = useState(false)
     const [validRoomInputs, setValidRoomInputs] = useState(true)
 
+    const [electionTitle, setElectionTitle] = useState()
     const [totalCandidates, setTotalCandidates] = useState(5)
     const [actualCandidates, setActualCandidates] = useState(5)
 
@@ -144,6 +145,9 @@ const Vote = () => {
                 if (remainingTime < 0) remainingTime = 0
                 setRemainingTime(remainingTime)
 
+                let _title = await election.methods.title().call()
+                setElectionTitle(_title)
+
                 const col = [{
                     dataField: 'id',
                     text: 'Candidate ID',
@@ -229,9 +233,7 @@ const Vote = () => {
         var hour = parseInt(n / 3600);
 
         n %= 3600;
-        var minutes = n / 60;
-
-        if (minutes === 60) minutes = 59
+        var minutes = (n / 60) - 1;
 
         n %= 60;
         var seconds = n;
@@ -302,6 +304,7 @@ const Vote = () => {
                                                                     Remaining time: {secondsToString(remainingTime)}
                                                                     <BiRefresh className='m-2' size="2em" style={{ color: "#0d6efd", cursor: "pointer" }} onClick={handleRoom}></BiRefresh>
                                                                 </p>
+                                                                <p className='justify-content-center d-flex'>{"Title: " + electionTitle}</p>
                                                                 <Table columns={columns} data={data}></Table>
                                                             </div>
                                                             <Form.Label>Select a candidate</Form.Label>
@@ -357,7 +360,15 @@ const Vote = () => {
                                         )
                                     }
                                 </Form>
-                            ) : (<Spinner animation="border" />)
+                            ) : (
+                                <div>
+                                    <div className='justify-content-center d-flex'>
+                                        <Spinner animation="border" />
+                                    </div>
+                                    <br></br>
+                                    <p>Interacting with the blockchain. Please wait...</p>
+                                </div>
+                            )
                         }
                     </div>
                 </div >
