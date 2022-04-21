@@ -1328,6 +1328,10 @@
       "links": {},
       "address": "0xB4066c88cea9Da441eDf97BB317E4A84fbe1974E",
       "transactionHash": "0x3bcd9e4537b1f257ea69ffa2f5b7c8c80f5fe665990a9f06c8869d0dceb95f5c"
+    },
+    "42": {
+      "address": "0x17b3aebdb90c3cad8de73c10926271d6d6b18729",
+      "transactionHash": "0xa457b448e04605f98898396ca3daa3b83b31c18b55132e7c8516cedd09a460c5"
     }
   },
   "schemaVersion": "3.4.4",

@@ -1,36 +1,35 @@
 import React from 'react'
 import './footer.css'
-import logo from './logo192.png'
-import { FaGithub } from 'react-icons/fa';
-import { FaReact } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
+
 
 
 
 const footer = () => {
     return (
-        <div>
-            <div className='footer-main'>
-                <div className='footer-container'>
-                    <div className='footer-start'>
-                        <div style={{ width: "40%" }} className='justify-content-between d-flex'>
-                            <div className='mr-3'>
-                                <img className='footer-logo' src={logo} alt="Logo" />
-                            </div>
-                            <div>
-                                <p>GITHUB</p>
-                                <p>SOLIDITY</p>
-                                <p>TRUFFLE SUITE</p>
-                            </div>
-                        </div>
-                        <div style={{ width: "20%", "padding": "7.5%" }}>
-                            <FaGithub></FaGithub>
-                            <FaReact></FaReact>
-                        </div>
+        <div className='footer-div'>
+            <div className='main-footer'>
+                <div className='main-footer-container'>
+                    <div className='main-footer-div'>
+                        <a target="_blank" href="https://github.com/SinghKing01/TFG" className='footer-links'>
+                            <div className='icon-div'><FaGithub size={"20"} /></div>
+                            <div>Source Code</div>
+                        </a>
+                        <a target="_blank" href="https://es.linkedin.com/in/dilpreet-singh-57918b167" className='footer-links'>
+                            <div className='icon-div'><FaLinkedin size={"20"} /></div>
+                            <div>Linkedin</div>
+                        </a>
+                        <a target="_blank" href="https://www.instagram.com/uibuniversitat/?hl=en" className='footer-links'>
+                            <div className='icon-div'><FaInstagram size={"20"} /></div>
+                            <div>UIB</div>
+                        </a>
                     </div>
-                    <div className="footer-end">Copyright © 2022 - Dilpreet Singh</div>
                 </div>
             </div>
-        </div >
+            <div className='footer-end'>
+                Copyright © 2021 - 2022 Dilpreet Singh (Universitat de les Illes Balears)
+            </div>
+        </div>
     )
 }
 

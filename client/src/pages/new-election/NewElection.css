@@ -25,6 +25,11 @@ body {
     display: flex;
 }
 
+.home-page-text {
+    /* max-width: 45%; */
+    width: 60%;
+}
+
 .form-div {
     /* border: 2px solid purple; */
     min-width: 50%;

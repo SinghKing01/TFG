@@ -231,6 +231,8 @@ const Vote = () => {
         n %= 3600;
         var minutes = n / 60;
 
+        if (minutes === 60) minutes = 59
+
         n %= 60;
         var seconds = n;
 
