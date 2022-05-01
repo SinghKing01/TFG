@@ -25,6 +25,7 @@
     justify-content: center;
     display: flex;
     background-color: rgb(236, 236, 236);
+    text-align: center;
 }
 
 .footer-links {

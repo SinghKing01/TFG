@@ -184,7 +184,7 @@ const AddCandidates = () => {
                                             <>
                                                 <Form.Group className="mb-3">
                                                     <Form.Label>Election Room</Form.Label>
-                                                    <Form.Control type="number" id="roomNumber" control_id="roomNumber" placeholder="Enter election room number" />
+                                                    <Form.Control type="number" id="roomNumber" control_id="roomNumber" placeholder="Enter election room number" autoFocus />
 
                                                     <Form.Label>Room password</Form.Label>
                                                     <Form.Control type="password" id="roomPassword" min="0" control_id="roomPassword" placeholder="Enter password of room" />

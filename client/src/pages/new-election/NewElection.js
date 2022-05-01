@@ -160,7 +160,7 @@ const NewElection = () => {
                                     <Form className='form-div' autoComplete="off">
                                         <Form.Group className="mb-3" controlId="electionTitle">
                                             <Form.Label>Election title</Form.Label>
-                                            <Form.Control type="string" placeholder="Enter election title" />
+                                            <Form.Control type="string" placeholder="Enter election title" autoFocus />
                                             {
                                                 !validTitle ? (
                                                     <Form.Text className="text-muted">

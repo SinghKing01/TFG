@@ -234,6 +234,7 @@ const Vote = () => {
 
         n %= 3600;
         var minutes = (n / 60) - 1;
+        if (minutes = -1) minutes = 0
 
         n %= 60;
         var seconds = n;
@@ -260,7 +261,7 @@ const Vote = () => {
                                             <>
                                                 <Form.Group className="mb-3" controlId="roomNumber">
                                                     <Form.Label>Election Room</Form.Label>
-                                                    <Form.Control type="number" placeholder="Enter election room number" />
+                                                    <Form.Control type="number" placeholder="Enter election room number" autoFocus />
                                                 </Form.Group>
                                                 <Form.Group className="mb-3" controlId="roomPassword">
                                                     <Form.Label>Room Password</Form.Label>
@@ -301,7 +302,7 @@ const Vote = () => {
                                                         <Form.Group className='mb-3' controlId='selectCandidate'>
                                                             <div className='table-container'>
                                                                 <p>
-                                                                    Remaining time: {secondsToString(remainingTime)}
+                                                                    Time left: {secondsToString(remainingTime)}
                                                                     <BiRefresh className='m-2' size="2em" style={{ color: "#0d6efd", cursor: "pointer" }} onClick={handleRoom}></BiRefresh>
                                                                 </p>
                                                                 <p className='justify-content-center d-flex'>{"Title: " + electionTitle}</p>
