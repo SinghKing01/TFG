@@ -17,6 +17,11 @@ const NewElection = () => {
                 // Get network provider and web3 instance.
                 setLoading(true)
                 const _web3 = await getWeb3();
+                if (_web3 === "No web3 instance injected, using Local web3.") {
+                    window.alert(
+                        "Non-Ethereum browser detected. You should consider trying MetaMask!"
+                    );
+                }
                 setWeb3(_web3)
 
                 // Use web3 to get the user's accounts.
