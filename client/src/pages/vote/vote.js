@@ -56,6 +56,7 @@ const Vote = () => {
 
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
+    const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
     const [submit1, setSubmit1] = useState(false)
@@ -83,6 +84,11 @@ const Vote = () => {
     const handleRoom = async (e) => {
         e.preventDefault()
         let roomNumber, password = null;
+
+        if (network === undefined) {
+            setNetworkSupported(false)
+            return
+        }
 
         if (!roomSaved) {
             roomNumber = document.getElementById('roomNumber').value;
@@ -277,7 +283,13 @@ const Vote = () => {
                                                                 Room number or password invalid! Please try again.
                                                             </Form.Text>
                                                         ) : (
-                                                            null
+                                                            !networkSupported ? (
+                                                                <>
+                                                                    <Form.Text className="text-muted">
+                                                                        Please switch to a supported network. For further information, please visit the home page.
+                                                                    </Form.Text>
+                                                                </>
+                                                            ) : (null)
                                                         )
                                                     }
                                                 </Form.Group>

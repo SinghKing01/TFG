@@ -57,6 +57,7 @@ const NewElection = () => {
 
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
+    const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
     const [roomCreated, setRoomCreated] = useState(false)
@@ -81,6 +82,11 @@ const NewElection = () => {
         units = document.querySelectorAll("[control_id=units]")[0].value
 
         let duration = null;
+
+        if (network === undefined) {
+            setNetworkSupported(false)
+            return
+        }
 
         if (magnitude === "null" || units <= 0) {
             setValidDuration(false)
@@ -171,7 +177,9 @@ const NewElection = () => {
                                                     <Form.Text className="text-muted">
                                                         Please enter a valid title for your election.
                                                     </Form.Text>
-                                                ) : (null)
+                                                ) : (
+                                                    null
+                                                )
                                             }
                                         </Form.Group>
 
@@ -227,7 +235,15 @@ const NewElection = () => {
                                                     <Form.Text className="text-muted">
                                                         Password confirmation does not match.
                                                     </Form.Text>
-                                                ) : (null)
+                                                ) : (
+                                                    !networkSupported ? (
+                                                        <>
+                                                            <Form.Text className="text-muted">
+                                                                Please switch to a supported network. For further information, please visit the home page.
+                                                            </Form.Text>
+                                                        </>
+                                                    ) : (null)
+                                                )
                                             }
                                         </Form.Group>
 

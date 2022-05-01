@@ -51,6 +51,7 @@ const AddCandidates = () => {
 
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
+    const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
     const [submit1, setSubmit1] = useState(false)
@@ -77,6 +78,11 @@ const AddCandidates = () => {
         password = document.querySelectorAll("[control_id=roomPassword]")[0].value
 
         setRoomPassword(password)
+
+        if (network === undefined) {
+            setNetworkSupported(false)
+            return
+        }
 
         if (roomNumber >= 0 && password !== "") {
             try {
@@ -207,7 +213,15 @@ const AddCandidates = () => {
                                                                         election.
                                                                     </Form.Text>
                                                                 </>
-                                                            ) : (null)
+                                                            ) : (
+                                                                !networkSupported ? (
+                                                                    <>
+                                                                        <Form.Text className="text-muted">
+                                                                            Please switch to a supported network. For further information, please visit the home page.
+                                                                        </Form.Text>
+                                                                    </>
+                                                                ) : (null)
+                                                            )
                                                         )
                                                     }
                                                 </Form.Group>

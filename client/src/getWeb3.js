@@ -31,9 +31,9 @@ const getWeb3 = () =>
         // const web3 = new Web3(provider);
         // console.log("No web3 instance injected, using Local web3.");
         const web3 = "No web3 instance injected, using Local web3."
-        window.alert(
-          "Non-Ethereum browser detected. You should consider trying MetaMask!"
-        );
+        // window.alert(
+        //   "Non-Ethereum browser detected. You should consider trying MetaMask!"
+        // );
         resolve(web3);
       }
     });
