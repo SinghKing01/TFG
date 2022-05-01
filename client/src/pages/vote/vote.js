@@ -113,6 +113,7 @@ const Vote = () => {
                 const emptyAddress = /^0x0+$/.test(electionAddr);
                 if (emptyAddress) {
                     setValidRoomInputs(false)
+                    setRoomSaved(false)
                     setLoading(false)
                     return
                 }

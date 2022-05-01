@@ -97,7 +97,9 @@ const AddCandidates = () => {
                 const emptyAddress = /^0x0+$/.test(electionAddr);
                 if (emptyAddress) {
                     setSubmit1Inputs(false)
+                    setSubmit1(false)
                     setLoading(false)
+                    console.log("first")
                     return
                 }
 
@@ -116,8 +118,8 @@ const AddCandidates = () => {
                     setSubmit1(true)
                 } else {
                     setIsOwner(false)
-                    setSubmit1(false)
                     setLoading(false)
+                    setSubmit1Inputs(true)
                     return
                 }
 
@@ -125,6 +127,7 @@ const AddCandidates = () => {
                     setSubmit1(false)
                     setSubmit1Inputs(false)
                     setLoading(false)
+                    console.log("second")
                     return
                 }
 
@@ -141,6 +144,7 @@ const AddCandidates = () => {
         } else {
             setSubmit1(false)
             setSubmit1Inputs(false)
+            console.log("third")
         }
     }
 

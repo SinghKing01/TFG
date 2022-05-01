@@ -233,7 +233,7 @@ const NewElection = () => {
                                             {
                                                 !validConfirmation && validPassword ? (
                                                     <Form.Text className="text-muted">
-                                                        Password confirmation does not match.
+                                                        Password confirmation does not match!
                                                     </Form.Text>
                                                 ) : (
                                                     !networkSupported ? (
