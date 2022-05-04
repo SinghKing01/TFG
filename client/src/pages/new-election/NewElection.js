@@ -195,7 +195,7 @@ const NewElection = () => {
                                             }
                                         </Form.Group>
 
-                                        <Form.Group className="mb-3" controlId="duration">
+                                        <Form.Group className="mb-3">
                                             <Form.Label>Duration of election</Form.Label>
                                             <div className='justify-content-between d-flex'>
                                                 <Form.Control style={{ height: "38px" }} size='md' type="number" min="0" placeholder="Enter units" control_id="units" />

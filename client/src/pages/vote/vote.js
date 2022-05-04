@@ -237,26 +237,22 @@ const Vote = () => {
 
     const [loading, setLoading] = useState(false)
 
+    const secondsToString = (totalseconds) => {
+        var day = 86400;
+        var hour = 3600;
+        var minute = 60;
 
-    const secondsToString = (n) => {
-        var day = parseInt(n / (24 * 3600));
-
-        n = n % (24 * 3600);
-        var hour = parseInt(n / 3600);
-
-        n %= 3600;
-        var minutes = (n / 60) - 1;
-        if (minutes = -1) minutes = 0
-
-        n %= 60;
-        var seconds = n;
+        var daysout = Math.floor(totalseconds / day);
+        var hoursout = Math.floor((totalseconds - daysout * day) / hour);
+        var minutesout = Math.floor((totalseconds - daysout * day - hoursout * hour) / minute);
+        var secondsout = totalseconds - daysout * day - hoursout * hour - minutesout * minute;
 
         var ret = (
-            day + " " + "days " + hour + " " + "hours "
-            + minutes.toFixed() + " " + "minutes " +
-            seconds.toFixed() + " " + "seconds ");
+            daysout + " " + "days " + hoursout + " " + "hours "
+            + minutesout.toFixed() + " " + "minutes " +
+            secondsout.toFixed() + " " + "seconds ");
 
-        return ret
+        return ret;
     }
 
     return (
