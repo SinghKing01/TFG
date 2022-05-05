@@ -30,12 +30,13 @@ const AddCandidates = () => {
                 const accounts = await _web3.eth.getAccounts();
                 setAccount(accounts[0])
 
-                // Get the contract instance.
+                // Get the curret network id on metamask
                 const networkId = await _web3.eth.net.getId();
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
 
+                // reload page when account or network is changed on metamask
                 window.ethereum.on('accountsChanged', (accounts) => {
                     window.location.reload();
                 });
@@ -49,49 +50,65 @@ const AddCandidates = () => {
         loadData()
     }, [])
 
+    // to save current account, network on Metamask
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
     const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
+    // the page shows form 1 until this variable is set to false
     const [submit1, setSubmit1] = useState(false)
+    // true if all inputs of room are valid
     const [validRoomInputs, setSubmit1Inputs] = useState(true)
+    // true if the current account is the owner of the election room
     const [isOwner, setIsOwner] = useState(true)
+    // to save the given password by user
     const [roomPassword, setRoomPassword] = useState()
 
+    // the page shows form 2 until this variable is set to false
     const [submit2, setSubmit2] = useState(false)
+    // to save actoual candidates in election on the blockchain
     const [actualCandidates, setActualCandidates] = useState(-1);
+    // total number of candidates to add (specified at contract initialization)
     const [totalCandidates, setTotalCandidates] = useState(-1);
+    // remaining candidates to add
     const [candidatesToAdd, setCandidatesToAdd] = useState("");
+    // if all candidates are specified this variable is true
     const [candidatesFull, setCandidatesFull] = useState(false)
+    // if the specified number to add cadidates is valid
     const [validCandidatesNumber, setValidCandidatesNumber] = useState(true);
-    // var [nameInputs, setNameInputs] = useState();
 
+    // the page shows form 3 until this variables is set to false
     const [submit3, setSubmit3] = useState(false)
 
+
+    // this function handles the given room number
     const handleRoom = async (e) => {
+        // prenvents page reload
         e.preventDefault();
 
+        // page number and the password
         let roomNumber, password = null
-
         roomNumber = document.querySelectorAll("[control_id=roomNumber]")[0].value
         password = document.querySelectorAll("[control_id=roomPassword]")[0].value
-
         setRoomPassword(password)
 
+        // if current network is not the supported one by this application, then simply returns
         if (network === undefined) {
             setNetworkSupported(false)
             return
         }
 
+        // if valid format of roomnumber and password
         if (roomNumber >= 0 && password !== "") {
             try {
+                // we'll instance the Elections contract by it's abi and address on Kovan network 
                 let elections = new web3.eth.Contract(
                     Elections.abi,
                     network && network.address,
                 );
 
-                //web3 check if valid room number
+                //web3 check if valid room number on blockchain
                 setLoading(true)
                 var electionAddr = await elections.methods.elections(roomNumber).call()
                 const emptyAddress = /^0x0+$/.test(electionAddr);
@@ -103,7 +120,7 @@ const AddCandidates = () => {
                     return
                 }
 
-                //web3 check if is owner
+                //web3 check if is owner on blockchain
                 setElectionAddress(electionAddr)
                 let election = await new web3.eth.Contract(Election.abi, electionAddr);
                 var electionOwner = await election.methods.owner().call()
@@ -113,6 +130,7 @@ const AddCandidates = () => {
                 setTotalCandidates(_totalCandidates)
                 setActualCandidates(_actualCandidates)
 
+                // if the current account is as same as the account who created the election 
                 if (electionOwner === account) {
                     setIsOwner(true)
                     setSubmit1(true)
@@ -123,6 +141,7 @@ const AddCandidates = () => {
                     return
                 }
 
+                // if room number is correct, put the password does not match
                 if (!passwordMatch) {
                     setSubmit1(false)
                     setSubmit1Inputs(false)
@@ -131,6 +150,7 @@ const AddCandidates = () => {
                     return
                 }
 
+                // if all candidates are already added
                 if (_totalCandidates === _actualCandidates) {
                     setCandidatesFull(true)
                 } else {
@@ -144,10 +164,10 @@ const AddCandidates = () => {
         } else {
             setSubmit1(false)
             setSubmit1Inputs(false)
-            console.log("third")
         }
     }
 
+    // this function checks if the candidates number to add is correct
     const handleCandidatesNumber = (e) => {
         e.preventDefault();
         if (candidatesToAdd <= 0 || candidatesToAdd > (totalCandidates - actualCandidates)) {
@@ -158,7 +178,11 @@ const AddCandidates = () => {
         }
     }
 
+
+    // this variables saves the current election address
     const [electionAddress, setElectionAddress] = useState("")
+
+    // this function handles and adds to smart contract the given candidates names
     const handleCandidatesNames = async (e) => {
         e.preventDefault();
 
@@ -167,9 +191,8 @@ const AddCandidates = () => {
             let name = document.querySelectorAll("[myattr=candidateName" + index + "]")[0].value
             if (name !== "") names.push(name)
         }
-        // nameInputs = names;
 
-        // addCandidates web3
+        // addCandidates to smart contract (web3)
         let election = new web3.eth.Contract(Election.abi, electionAddress);
         setLoading(true)
         try {
@@ -183,6 +206,7 @@ const AddCandidates = () => {
         setSubmit3(true)
     }
 
+    // when true, the page shows the loading spinner
     const [loading, setLoading] = useState(false)
 
     return (

@@ -28,12 +28,13 @@ const NewElection = () => {
                 const accounts = await _web3.eth.getAccounts();
                 setAccount(accounts[0])
 
-                // Get the contract instance.
+                // Get the curret network id on metamask
                 const networkId = await _web3.eth.net.getId();
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
 
+                // reload page when account or network is changed on metamask
                 window.ethereum.on('accountsChanged', (accounts) => {
                     window.location.reload();
                 });
@@ -48,21 +49,26 @@ const NewElection = () => {
         loadData()
     }, [])
 
+    // when true shows spinner
     const [loading, setLoading] = useState(false)
 
+    // to check if input fields have valid data
     const [validTitle, setValidTitle] = useState(true);
     const [validNumCandidates, setValidNumCandidates] = useState(true);
     const [validPassword, setValidPassword] = useState(true)
     const [validConfirmation, setValidConfirmation] = useState(true)
 
+    // to save current account, network on Metamask
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
     const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
+    // the created room will be saved in the following variables
     const [roomCreated, setRoomCreated] = useState(false)
     const [roomNumber, setRoomNumber] = useState(-1)
 
+    // to check if the duration time of election is valid
     const [validDuration, setValidDuration] = useState(true)
     const handleFormSubmit = async (e) => {
         e.preventDefault()
@@ -74,6 +80,7 @@ const NewElection = () => {
         let valid_p_confirmation = true
         let valid_duration = true
 
+        // get input fields values by their specified ids in the reder function
         title = document.getElementById("electionTitle").value
         numCandidates = document.getElementById("candidatesNumber").value
         password = document.getElementById("formBasicPassword").value
@@ -83,11 +90,13 @@ const NewElection = () => {
 
         let duration = null;
 
+        // if network if not valid (means that the network selected on Metamask is not Kovan)
         if (network === undefined) {
             setNetworkSupported(false)
             return
         }
 
+        // if duration field is empty or has negative value
         if (magnitude === "null" || units <= 0) {
             setValidDuration(false)
             valid_duration = false
@@ -95,6 +104,8 @@ const NewElection = () => {
             setValidDuration(true)
             valid_duration = true
 
+            // in which magnitude is specified the duration (days, hours or minutes)
+            // then we'll convert that to seconds
             if (magnitude === "minutes") {
                 duration = units * 60;
             } else if (magnitude === "hours") {
@@ -102,44 +113,52 @@ const NewElection = () => {
             } else if (magnitude === "days") {
                 duration = units * 60 * 60 * 24;
             }
-
         }
 
+        // if title invalid
         if (title === "") {
             setValidTitle(false)
             valid_t = false
         } else {
+            // otherwise
             setValidTitle(true)
             valid_t = true
         }
 
+        // if number of candidates is invalid
         if (numCandidates <= 0) {
             setValidNumCandidates(false)
             valid_n = false
         } else {
+            // otherwise
             setValidNumCandidates(true)
             valid_n = true
         }
 
+        // if password is not specified
         if (password === "") {
             setValidPassword(false)
             valid_p = false
         } else {
+            // otherwise
             setValidPassword(true)
             valid_p = true
         }
 
+        // if password confirmation does not match with the specified password
         if (password !== confirmation) {
             setValidConfirmation(false)
             valid_p_confirmation = false
         } else {
+            // otherwise
             setValidConfirmation(true)
             valid_p_confirmation = true
         }
 
+        // if all input fields are correct then
         if (valid_t && valid_n && valid_p && valid_p_confirmation && valid_duration) {
             try {
-                //create election web3
+                // we'll instance the Elections contract by it's abi and address on Kovan network 
                 let instance = new web3.eth.Contract(
                     Elections.abi,
                     network && network.address,
@@ -147,13 +166,15 @@ const NewElection = () => {
 
                 // adding new election
                 setLoading(true)
+                // we'll create a new election with the values of input fields, the gas price will current account
                 await instance.methods.newElection(title, numCandidates, duration, password).send({ from: account });
+                // the id of the election created is the same as total number of elections created till now (by the nature of Elections contract)
                 var totalElections = await instance.methods.electionCount().call()
                 setRoomCreated(true)
                 setRoomNumber(totalElections - 1)
                 setLoading(false)
-                console.log(totalElections)
             } catch (error) {
+                // if some error is ocurred, then we'll stop the spinner
                 setLoading(false)
             }
         }

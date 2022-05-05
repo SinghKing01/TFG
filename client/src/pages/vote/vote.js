@@ -34,12 +34,13 @@ const Vote = () => {
                 const accounts = await _web3.eth.getAccounts();
                 setAccount(accounts[0])
 
-                // Get the contract instance.
+                // Get the curret network id on metamask
                 const networkId = await _web3.eth.net.getId();
                 const deployedNetwork = Elections.networks[networkId];
                 setNetwork(deployedNetwork)
                 setLoading(false)
 
+                // reload page when account or network is changed on metamask
                 window.ethereum.on('accountsChanged', (accounts) => {
                     window.location.reload();
                 });
@@ -54,42 +55,54 @@ const Vote = () => {
         loadData()
     }, [])
 
+    // to save current account, network on Metamask
     const [account, setAccount] = useState("")
     const [network, setNetwork] = useState()
     const [networkSupported, setNetworkSupported] = useState(true)
     const [web3, setWeb3] = useState()
 
+    // the page shows form1 until submit1 is false
     const [submit1, setSubmit1] = useState(false)
+    // the page shows form2 until submit2 is false
     const [submit2, setSubmit2] = useState(false)
+    // if all inputs for the room are valid
     const [validRoomInputs, setValidRoomInputs] = useState(true)
-
+    //  to get and save the election title from the blockchain
     const [electionTitle, setElectionTitle] = useState()
-    const [totalCandidates, setTotalCandidates] = useState(5)
-    const [actualCandidates, setActualCandidates] = useState(5)
-
+    //  to get and save the election's total candidates from the blockchain
+    const [totalCandidates, setTotalCandidates] = useState()
+    //  to get and save the election's actual candidates from the blockchain
+    const [actualCandidates, setActualCandidates] = useState()
+    // to save candidates in form of an array
     const [electionCandidates, setElectionCandidates] = useState()
-
+    // to save the current election address
     const [electionAddress, setElectionAddress] = useState("")
-
+    // to save if the current account has already voted
     const [alreadyVoted, setAlreadyVoted] = useState(false)
-
+    // to check if the selected candidate to cote is valid
     const [validCandidate, setValidCandidate] = useState(true)
+
+    // data and columns has inputs for the table that represents the vote results
     const [data, setData] = useState()
     const [columns, setColumns] = useState()
 
+    // to save the room number, password
     const [roomSaved, setRoomSaved] = useState(false)
     const [roomNum, setRoomNum] = useState(-1)
     const [roomPass, setRoomPass] = useState(-1)
 
+    // this function handles the specified room
     const handleRoom = async (e) => {
         e.preventDefault()
         let roomNumber, password = null;
 
+        // if select network is not supported by the application
         if (network === undefined) {
             setNetworkSupported(false)
             return
         }
 
+        // when we refresh the time in vote page, we won't insert room data again, so we save room number and password
         if (!roomSaved) {
             roomNumber = document.getElementById('roomNumber').value;
             password = document.getElementById('roomPassword').value;
@@ -103,12 +116,15 @@ const Vote = () => {
 
         if (roomNumber >= 0 && password !== "") {
             try {
+                // instance of Elections contract
                 let elections = new web3.eth.Contract(
                     Elections.abi,
                     network && network.address,
                 );
 
                 setLoading(true)
+
+                // to get the address and check if the room exists
                 var electionAddr = await elections.methods.elections(roomNumber).call()
                 const emptyAddress = /^0x0+$/.test(electionAddr);
                 if (emptyAddress) {
@@ -118,7 +134,7 @@ const Vote = () => {
                     return
                 }
 
-                //web3 check if password
+                // to check if password is valid
                 setElectionAddress(electionAddr)
                 let election = await new web3.eth.Contract(Election.abi, electionAddr);
                 let passwordMatch = await election.methods.passwordMatch(password).call()
@@ -130,12 +146,13 @@ const Vote = () => {
                     return
                 }
 
+                // get actual number of candidates assigned, if incomplete user can't vote
                 let _actualCandidates = await election.methods.actualCandidates().call()
                 let _totalCandidates = await election.methods.numCandidates().call()
                 setTotalCandidates(_totalCandidates)
                 setActualCandidates(_actualCandidates)
 
-                // load candidates names in electionCandidates
+                // load candidates names from electionCandidates variable
                 var candidates = []
                 var candidate = null
                 for (let index = 0; index < _totalCandidates; index++) {
@@ -143,23 +160,29 @@ const Vote = () => {
                     candidates.push({ name: candidate.name, id: candidate.id, voteCount: candidate.voteCount })
                 }
 
-
+                // get the time when the election was created
                 let createdTime = await election.methods.createdTime().call()
                 createdTime = parseInt(createdTime, 10)
 
+                // get the max duration for the voting room
                 let duration = await election.methods.duration().call()
                 duration = parseInt(duration, 10)
 
+                // get the actual time
                 let actualTime = new Date().getTime()
+                // convert time from ms to s
                 actualTime = (actualTime - (actualTime % 1000)) / 1000;
 
+                // the difference between actual_time and (createdTime + voteDuration) is the remaining time
                 let remainingTime = (createdTime + duration) - actualTime
                 if (remainingTime < 0) remainingTime = 0
                 setRemainingTime(remainingTime)
 
+                // given title for the title 
                 let _title = await election.methods.title().call()
                 setElectionTitle(_title)
 
+                // Table columns
                 const col = [{
                     dataField: 'id',
                     text: 'Candidate ID',
@@ -173,15 +196,15 @@ const Vote = () => {
                     sort: true
                 }];
 
+                // Table data
                 var data = []
-
                 for (let i = 0; i < candidates.length; i++) {
                     data.push({ id: candidates[i].id, name: candidates[i].name, count: candidates[i].voteCount })
                 }
 
+                // save columns, data and candidates in global variables
                 setColumns(col)
                 setData(data)
-
                 setElectionCandidates(candidates)
 
                 setSubmit1(true)
@@ -197,34 +220,44 @@ const Vote = () => {
 
     }
 
+    // true when election time exceeded the max duration
     const [electionExpired, setElectionExpired] = useState(false)
+    // time left to vote 
     const [remainingTime, setRemainingTime] = useState()
+
+    // this function handles the selected candidate to vote
     const handleSelectedCandidate = async (e) => {
         e.preventDefault();
         let selectedCandidateID = document.getElementById('selectCandidate').value;
         if (selectedCandidateID === "null") {
+            // no candidate selected
             setValidCandidate(false);
         } else {
             setValidCandidate(true);
             // vote candidate web3
             setLoading(true)
             try {
+                // instance of the Election contract
                 let election = await new web3.eth.Contract(Election.abi, electionAddress);
+
+                // to check if current account has already voted
+                // if so, can't vote again and return
                 let voted = false
                 voted = await election.methods.voters(account).call()
-
                 if (voted) {
                     setAlreadyVoted(true)
                     setLoading(false)
                     return
                 }
 
+                // if time expired, can't vote and return
                 if (remainingTime === 0) {
                     setElectionExpired(true)
                     setLoading(false)
                     return
                 }
 
+                // vote
                 await election.methods.vote(selectedCandidateID, roomPass).send({ from: account })
                 setSubmit2(true)
             } catch (error) {
@@ -235,8 +268,10 @@ const Vote = () => {
 
     }
 
+    // when true, shows the loading spinner
     const [loading, setLoading] = useState(false)
 
+    // this function converts seconds into a string in DD:HH:MM:SS format
     const secondsToString = (totalseconds) => {
         var day = 86400;
         var hour = 3600;
@@ -290,7 +325,6 @@ const Vote = () => {
                                                         )
                                                     }
                                                 </Form.Group>
-
                                                 <Button variant="primary" type="submit" onClick={handleRoom}>
                                                     Submit
                                                 </Button>
@@ -371,7 +405,6 @@ const Vote = () => {
                                                     </Form.Group>
                                                 )
                                             )
-
                                         )
                                     }
                                 </Form>
@@ -389,7 +422,6 @@ const Vote = () => {
                 </div >
             </Container >
             <Footer />
-
         </div >
     )
 }
